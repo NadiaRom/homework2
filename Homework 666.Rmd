@@ -1,0 +1,159 @@
+---
+title: "Homework12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+install.packages('rvest')    # install 'rvest' library in R; library and package are synonyms
+install.packages('tidyverse')
+install.packages("progress")
+```
+
+
+```{r setup, include=FALSE}
+library(rvest)    # a library for web web scraping
+library(tidyverse)
+library(progress)
+```
+
+```{r}
+url <- "https://football.ua/news/archive/spain/"
+content <- read_html(url)
+content
+```
+
+
+```{r}
+headers <- content %>%
+  html_nodes('ul.archive-list h4') %>%
+  html_text()
+
+headers
+
+
+```
+
+```{r}
+titles <- content %>%
+  html_nodes('a.intro-text') %>%
+  html_text() %>%
+  str_trim()
+
+dates <- content %>%
+  html_nodes('ul.archive-list p.date') %>%
+  html_text() %>%
+  str_trim()
+
+links <- content %>%
+  html_nodes('ul.archive-list > li > h4 > a') %>%
+  html_attr('href') %>%
+  str_trim()
+
+
+
+
+```
+
+
+```{r}
+df <- data.frame(headers = headers, titles = titles, dates = dates, links = links)
+
+write.csv(df, "homework1.csv", row.names = FALSE) 
+```
+
+```{r}
+npages <- 5 
+pb <- progress_bar$new(
+  format = "  downloading [:bar] :percent in :elapsed ",
+  total = npages + 1, clear = FALSE, width= 60)
+```
+
+```{r}
+dates <- c()
+titles <- c()
+links <- c()
+
+```
+
+```{r}
+
+url_template <- "https://football.ua/news/archive/spain/page"
+
+for (page in 1:npages) {
+  url <- str_c(url_template,
+               page)
+  
+lol <- str_c(url, ".html")
+
+content <- read_html(lol)
+  
+titles <- content %>%
+  html_nodes('a.intro-text') %>%
+  html_text() %>%
+  str_trim() %>%
+  c(titles, .)
+
+dates <- content %>%
+  html_nodes('ul.archive-list p.date') %>%
+  html_text() %>%
+  str_trim() %>%
+  c(dates, .)
+
+links <- content %>%
+  html_nodes('ul.archive-list > li > h4 > a') %>%
+  html_attr('href') %>%
+  str_trim() %>%
+  c(links, .)
+
+Sys.sleep(3)
+
+ print(page)
+}
+
+
+```
+```{r}
+
+
+data.frame(headers = headers,
+           title = titles,
+           date = dates,
+           link = links) %>%
+  write.csv("homework6.csv", fileEncoding = "UTF-8")
+```
+
+```{r}
+
+df <- read.csv("https://github.com/superhulya25/homework2/blob/master/homework2.csv", encoding="UTF-8", stringsAsFactors=FALSE)
+```
+

@@ -154,6 +154,7 @@ data.frame(headers = headers,
 
 ```{r}
 
-df <- read.csv("https://github.com/superhulya25/homework2/blob/master/homework2.csv", encoding="UTF-8", stringsAsFactors=FALSE)
+df <- read.csv("https://github.com/superhulya25/homework2/blob/master/homework6.csv", encoding="UTF-8", stringsAsFactors=FALSE)
+df
 ```
 
